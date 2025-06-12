@@ -2,11 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@amap/amap-jsapi-loader', 'antd'],
-  compiler: {
-    styledComponents: true,
-  },
   images: {
-    domains: ['webapi.amap.com'],
+    domains: ['webapi.amap.com', 'restapi.amap.com'],
   },
   // 添加安全策略配置
   async headers() {
@@ -17,11 +14,11 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: [
-              "default-src 'self' *.amap.com *.autonavi.com;",
+              "default-src 'self' *.amap.com *.autonavi.com overpass-api.de;",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: *.amap.com *.autonavi.com;",
               "style-src 'self' 'unsafe-inline' *.amap.com;",
               "img-src 'self' data: blob: *.amap.com *.autonavi.com;",
-              "connect-src 'self' *.amap.com *.autonavi.com;",
+              "connect-src 'self' *.amap.com *.autonavi.com https://overpass-api.de;",
               "worker-src 'self' blob: data:;",
               "child-src 'self' blob: data:;"
             ].join(' ')
@@ -47,15 +44,35 @@ const nextConfig = {
     
     if (dev && !isServer) {
       // 开发环境优化
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
-            reuseExistingChunk: true,
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10,
+              reuseExistingChunk: true,
+            },
+            common: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
           },
         },
+        minimize: true,
+        minimizer: config.optimization.minimizer,
+      };
+      
+      // 启用模块连接
+      config.optimization.concatenateModules = true;
+      
+      // 优化模块解析
+      config.resolve = {
+        ...config.resolve,
+        symlinks: false,
+        cacheWithContext: false,
       };
     }
     return config;

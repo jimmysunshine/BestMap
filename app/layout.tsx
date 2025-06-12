@@ -1,12 +1,14 @@
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from './providers';
-import type { ReactNode } from 'react';
-import { metadata } from './metadata';
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Providers } from './providers'
+import type { ReactNode } from 'react'
+import { metadata } from './metadata'
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: 'swap',
+  preload: true,
 });
 
 export { metadata };
